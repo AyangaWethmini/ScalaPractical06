@@ -1,31 +1,49 @@
-// Define the case class for Item
-case class Item(name: String, quantity: Int, price: Double)
+object q1 extends App{
+    case class Product(name: String, quantity: Int, price: Double)
 
-// Create mutable maps for inventory
-val inventory1 = scala.collection.mutable.Map[Int, Item]()
-val inventory2 = scala.collection.mutable.Map[Int, Item]()
+    val inventory1 = scala.collection.mutable.Map[Int, Product]()
+    val inventory2 = scala.collection.mutable.Map[Int, Product]()
 
-// Add items to inventory1
-inventory1 += (1 -> Item("Pencil", 20, 15))
-inventory1 += (2 -> Item("Pen", 31, 20))
-inventory1 += (3 -> Item("Book", 20, 150))
-inventory1 += (4 -> Item("Pencil-yellow", 13, 25))  // Changed key to 4 to avoid overwriting
+    inventory1 += (1 -> Product("Pencil", 20, 15))
+    inventory1 += (2 -> Product("Pen", 31, 20))
+    inventory1 += (3 -> Product("Book", 20, 150))
 
-// Add items to inventory2
-inventory2 += (4 -> Item("Eraser", 20, 10))
-inventory2 += (5 -> Item("Pen-red", 12, 20))
-inventory2 += (6 -> Item("Scissor", 5, 200))
-inventory2 += (7 -> Item("Ruler", 10, 25))  // Changed key to 7 to avoid overlap with inventory1
+    inventory2 += (4 -> Product("Eraser", 20, 10))
+    inventory2 += (2 -> Product("Pen-red", 12, 25))
+    inventory2 += (5 -> Product("Scissor", 5, 200))
 
-// Print Inventory 1
-println("Inventory 01:")
-inventory1.foreach { case (key, item) =>
-  println(s"ID: $key, Name: ${item.name}, Price: ${item.price}, Quantity: ${item.quantity}")
+    val productNamesInventory1 = inventory1.values.map(_.name).toList
+    println(s"Product names in inventory1: ${productNamesInventory1.mkString(", ")}")
+
+    val totalValueInventory1 = inventory1.values.map(item => item.quantity * item.price).sum
+    println(s"Total value of inventory1: $$${totalValueInventory1}")
+
+    val isInventory1Empty = inventory1.isEmpty
+    println(s"Is inventory1 empty? $isInventory1Empty")
+
+
+    val mergedInventory = (inventory1 ++ inventory2).map { case (id, product) =>
+    val existingProduct = inventory1.get(id).orElse(inventory2.get(id))
+    existingProduct match {
+        case Some(existing) =>
+        
+        id -> Product(product.name, existing.quantity + product.quantity, Math.max(existing.price, product.price))
+        case None =>
+        id -> product
+    }
+    }
+
+
+    println("Merged Inventory:")
+    mergedInventory.foreach { case (key, product) =>
+    println(s"ID: $key, Name: ${product.name}, Price: ${product.price}, Quantity: ${product.quantity}")
+    }
+
+    val productIdToCheck = 102
+    inventory1.get(productIdToCheck) match {
+    case Some(product) =>
+        println(s"Product ID $productIdToCheck exists in inventory1: Name: ${product.name}, Price: ${product.price}, Quantity: ${product.quantity}")
+    case None =>
+        println(s"Product ID $productIdToCheck does not exist in inventory1.")
+    }
 }
-
-// Print Inventory 2
-println("Inventory 02:")
-inventory2.foreach { case (key, item) =>
-  println(s"ID: $key, Name: ${item.name}, Price: ${item.price}, Quantity: ${item.quantity}")
-}
-`
